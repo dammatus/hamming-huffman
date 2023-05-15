@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>Codificación-Hamming</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+</head>
+
+<body>
+    <div class="container-fluid bg-light py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10 col-11">
+                <div class="card">
+                    <div class="card-header bg-secondary text-light fw-bold">Hamming</div>
+                    <div class="card-body">
+                        <form action="/files" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Selecciona un archivo ".txt":</label>
+                                <div class="input-group">
+                                    <input type="file" id="file" name="file" accept=".txt" class="form-control">
+                                    <label for="file" class="input-group-text"><i
+                                            class="bi bi-folder2-open"></i></label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tipoCod" class="form-label">Tipo de Codificación:</label>
+                                <select name="tipoCod" id="blockSize" class="form-select">
+                                    <option value="32">32 bits</option>
+                                    <option value="2048">2048 bits</option>
+                                    <option value="65536">65536 bits</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="error" class="form-label">Errores:</label>
+                                <select name="error" id="error" class="form-select">
+                                    <option value="Si">Si</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <input type="submit" value="Generar Codificación" class="btn btn-primary">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+        integrity="sha384-cDW1X8CO90Iz18zb91oHkZMQWfhKzzzd1QGxME+vgNvQK4H3NlnrbD+I4zg+CvF"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"></script>
+</body>
+
+</html>
