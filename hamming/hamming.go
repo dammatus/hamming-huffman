@@ -1,4 +1,4 @@
-package main
+package hamming
 
 import (
 	"fmt"
@@ -54,30 +54,30 @@ func writeFile(file string, datos string) error {
 	return nil
 }
 
-func main() {
+// func main() {
 
-	// Handlers
-	http.HandleFunc("/files", controlarArchivo)
-	http.HandleFunc("/", controlarHamming)
-	http.HandleFunc("/resultados", mostrarResultados)
+// 	// Handlers
+// 	http.HandleFunc("/files", ControlarArchivo)
+// 	http.HandleFunc("/", ControlarHamming)
+// 	http.HandleFunc("/resultados", MostrarResultados)
 
-	// Iniciar el servidor
-	fmt.Println("Servidor escuchando en http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+// 	// Iniciar el servidor
+// 	fmt.Println("Servidor escuchando en http://localhost:8080")
+// 	http.ListenAndServe(":8080", nil)
 
-}
+// }
 
-func controlarHamming(w http.ResponseWriter, r *http.Request) {
+func ControlarHamming(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// Si es GET, mostramos el formulario
-		http.ServeFile(w, r, "hamming.html")
+		http.ServeFile(w, r, "/hamming.html")
 	} else if r.Method == "POST" {
 		// Si es POST, enviamos el archivo a la función controlarArchivo
-		controlarArchivo(w, r)
+		ControlarArchivo(w, r)
 	}
 }
 
-func controlarArchivo(w http.ResponseWriter, r *http.Request) {
+func ControlarArchivo(w http.ResponseWriter, r *http.Request) {
 
 	// Parsea la petición y extrae el archivo subido
 	err := r.ParseMultipartForm(10 << 20) // 10 MB
@@ -240,11 +240,11 @@ func controlarArchivo(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("***************************************************")
 
 	// Servir el archivo HTML con los resultados
-	http.HandlerFunc(mostrarResultados).ServeHTTP(w, r)
+	http.HandlerFunc(MostrarResultados).ServeHTTP(w, r)
 
 }
 
-func mostrarResultados(w http.ResponseWriter, _ *http.Request) {
+func MostrarResultados(w http.ResponseWriter, _ *http.Request) {
 
 	// Establecer el tipo de contenido para que se muestre en utf-8 (igual loas acentos no los muestra bien)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
