@@ -1,4 +1,4 @@
-package modules
+package hamming
 
 // Convierte de binario a texto
 func BinToASCII(bin []byte) string {
