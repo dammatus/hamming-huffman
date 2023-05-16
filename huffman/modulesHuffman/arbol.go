@@ -1,4 +1,4 @@
-package moduleshuffman
+package modulesHuffman
 
 import (
 	"container/heap"
