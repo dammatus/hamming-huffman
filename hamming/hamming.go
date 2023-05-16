@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"text/template"
+
+	"github.com/dammatus/hamming-huffman/hamming/modulesHamming"
 )
 
 type Resultados struct {

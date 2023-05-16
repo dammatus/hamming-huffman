@@ -1,4 +1,4 @@
-package hamming
+package modulesHamming
 
 import (
 	"fmt"
