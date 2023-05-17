@@ -78,3 +78,16 @@ func PrintCodes(raiz *arbol, prefix []byte) {
 		PrintCodes(raiz.der, append(prefix, '1'))
 	}
 }
+
+func codeMap(raiz *arbol, prefix []byte) (mapa map[rune][]byte) {
+	if raiz == nil {
+		return
+	}
+	if raiz.c != 0 {
+		mapa[raiz.c] = prefix
+	} else {
+		codeMap(raiz.izq, append(prefix, '0'))
+		codeMap(raiz.izq, append(prefix, '1'))
+	}
+	return
+}

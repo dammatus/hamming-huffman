@@ -22,7 +22,7 @@ func main() {
 	// fmt.Println("Servidor escuchando en http://localhost:8080")
 	// http.ListenAndServe(":8080", nil)
 
-	text := "fffffffffffffffffffffffffffffffffffffffffffffeeeeeeeeeeeeeeeedddddddddddddccccccccccccbbbbbbbbbaaaaa"
+	text := readFile("hola.txt")
 	freqs := make(map[rune]int)
 	for _, ch := range text {
 		freqs[ch]++
@@ -30,6 +30,7 @@ func main() {
 	raiz := modulesHuffman.ConstruirArbol(freqs)
 	fmt.Println("Codigos Huffman:")
 	modulesHuffman.PrintCodes(raiz, []byte{})
+	println("Code Maps: ", codeMap(raiz, []byte))
 
 	fmt.Println(freqs)
 	fmt.Printf("Tamaño: %d", len(text))
@@ -117,4 +118,18 @@ func ControlarArchivo(w http.ResponseWriter, r *http.Request) {
 	// Servir el archivo HTML con los resultados
 	//http.HandlerFunc(MostrarResultados).ServeHTTP(w, r)
 
+}
+
+// Aca empiezo a trabajar
+
+// Abre el archivo a codificar
+func readFile(file string) string {
+	// Lee el contenido del archivo
+	datos, err := ioutil.ReadFile(file)
+	if err != nil {
+		// Si ocurre un error, devuelve una cadena vacía
+		return ""
+	}
+	// Convierte el slice de bytes a un string y lo devuelve
+	return string(datos)
 }
