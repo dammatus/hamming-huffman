@@ -371,7 +371,7 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 
 	//compacted := huffman.BinaryToBytes(binary)
 
-	fmt.Println(compacted)
+	fmt.Println("Codigo Huffman: ", compacted)
 
 	//Este es el que se mostrara en la pagina
 	/* if err := ioutil.WriteFile(filepath.Join("comprimir/files", "comprimido.txt"), compacted, 0644); err != nil {
@@ -384,12 +384,20 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 		return
 	} */
-	err = huffman.SaveCompacted(compacted)
+	err = huffman.SaveCompacted(compacted, raiz)
 	if err != nil {
 		fmt.Println("Error al guardar el archivo: ", err)
 	} else {
 		fmt.Println("Datos comprimidos exitosamente!")
 	}
+
+	unziped, raizRecuperada, error := huffman.GetFromCompacted()
+
+	if error == nil {
+		fmt.Println("Recuperados del archivo: ", unziped)
+	}
+
+	fmt.Println("Resultado: ", huffman.DecodeData(raizRecuperada, unziped))
 
 	mostrarResultadosComp(w, r)
 }
