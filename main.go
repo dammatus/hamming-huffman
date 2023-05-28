@@ -180,6 +180,7 @@ func archivosCodHandler(w http.ResponseWriter, r *http.Request) {
 	case 65536:
 		codificadoFileName = "codificado.HA3"
 	}
+
 	//Este es el que se mostrara en la pagina
 	if err := ioutil.WriteFile(filepath.Join("codificar/files", "codificado.txt"), []byte(ascii), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
@@ -364,26 +365,12 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(freqs)
 	fmt.Printf("Tamaño: %d\n", len(text))
 
-	//binary := huffman.Compacted(text, raiz)
 	compacted := huffman.Compacted(text, raiz)
 
 	//fmt.Println("Compactado: " + binary)
 
-	//compacted := huffman.BinaryToBytes(binary)
-
 	fmt.Println("Codigo Huffman: ", compacted)
 
-	//Este es el que se mostrara en la pagina
-	/* if err := ioutil.WriteFile(filepath.Join("comprimir/files", "comprimido.txt"), compacted, 0644); err != nil {
-		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
-		return
-	} */
-
-	//Este es el que cumple con la consigna, se guarda en la carpeta resultados
-	/* if err := ioutil.WriteFile(filepath.Join("comprimir/resultados", "comprimido.huf"), compacted, 0644); err != nil {
-		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
-		return
-	} */
 	err = huffman.SaveCompacted(compacted, raiz)
 	if err != nil {
 		fmt.Println("Error al guardar el archivo: ", err)
@@ -398,6 +385,27 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Resultado: ", huffman.DecodeData(raizRecuperada, unziped))
+
+	//Este es el comprimido que se mostrara en la pagina
+	compact := huffman.BinaryToBytes(compacted)
+
+	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "comprimido.txt"), compact, 0644); err != nil {
+		http.Error(w, "No se pudo guardar el archivo comprimido", http.StatusInternalServerError)
+		return
+	}
+
+	//Este es el descomprimido que se mostrara en la pagina
+	unzip := huffman.DecodeData(raizRecuperada, unziped)
+
+	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "descomprimido.txt"), []byte(unzip), 0644); err != nil {
+		http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
+		return
+	}
+	//Este es el descomprimido huf
+	if err := ioutil.WriteFile(filepath.Join("comprimir/resultados", "descomprimido.dhu"), []byte(unzip), 0644); err != nil {
+		http.Error(w, "No se pudo guardar el archivo descomprimido.dhu", http.StatusInternalServerError)
+		return
+	}
 
 	mostrarResultadosComp(w, r)
 }
@@ -421,7 +429,7 @@ func mostrarResultadosComp(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	// Leer el archivo descomprimido
-	decomprimido, err := ioutil.ReadFile(filepath.Join("comprimir/files", "archivo.txt")) //Todavia no se descomprime
+	decomprimido, err := ioutil.ReadFile(filepath.Join("comprimir/files", "descomprimido.txt"))
 	if err != nil {
 		http.Error(w, "No se pudo leer el archivo decodificado", http.StatusInternalServerError)
 		return
@@ -448,3 +456,7 @@ func mostrarResultadosComp(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 }
+
+/*
+Fin funciones para la compresion de un archivo
+*/
