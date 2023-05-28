@@ -1,6 +1,10 @@
 package huffman
 
-import "strconv"
+import (
+	"bufio"
+	"os"
+	"strconv"
+)
 
 func Compacted(texto string, arbol *arbol) string {
 	codigos := make(map[rune]string)
@@ -41,4 +45,32 @@ func BinaryToBytes(binaryString string) []byte {
 	}
 
 	return bytes
+}
+
+func SaveCompacted(compacted string) error {
+	file, err := os.Create("./comprimir/resultados/comprimido.huf")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	for i := 0; i < len(compacted); i += 8 {
+		if i+8 <= len(compacted) {
+			byteStr := compacted[i : i+8]
+			byteVal := byte(0)
+			for j := 0; j < 8; j++ {
+				if byteStr[j] == '1' {
+					byteVal |= 1 << (7 - j)
+				}
+			}
+			writer.WriteByte(byteVal)
+		}
+	}
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
 }
