@@ -3,11 +3,15 @@ package huffman
 import (
 	"bufio"
 	"encoding/binary"
+	"fmt"
 	"os"
+	"strings"
 )
 
 func GetFromCompacted() (string, *arbol, error) {
 	//Abre el archivo para lectura
+	fmt.Println("Recupera del archivo comprimido los datos necesarios para descomprimirlo")
+	var builder strings.Builder
 	file, err := os.Open("./comprimir/resultados/comprimido.huf")
 
 	if err != nil {
@@ -39,21 +43,22 @@ func GetFromCompacted() (string, *arbol, error) {
 	for _, byteVal := range dataBytes {
 		for j := 7; j >= 0; j-- {
 			if (byteVal >> j & 1) == 1 {
-				data += "1"
+				builder.WriteByte('1')
 			} else {
-				data += "0"
+				builder.WriteByte('0')
 			}
 		}
 	}
-
+	data = builder.String()
 	data = data[:originalLength]
-
+	fmt.Println("Recupera el arbol")
 	raiz, err := cargarArbol(reader)
+	fmt.Println("Arbol recuperado")
 
 	if err != nil {
 		return "", nil, err
 	}
-
+	fmt.Println("Ya recupero los datos necesarios para descomprimir")
 	return data, raiz, nil
 }
 
@@ -85,6 +90,7 @@ func cargarArbol(reader *bufio.Reader) (*arbol, error) {
 }
 
 func DecodeData(raiz *arbol, data string) string {
+	fmt.Println("Empieza a decodificar")
 	resultado := ""
 	nodoActual := raiz
 
@@ -101,5 +107,6 @@ func DecodeData(raiz *arbol, data string) string {
 			nodoActual = raiz
 		}
 	}
+	fmt.Println("Termina de decodificar")
 	return resultado
 }

@@ -351,40 +351,25 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	text := string(contenido)
 
-	fmt.Println(text)
-
 	freqs := make(map[rune]int)
 	for _, ch := range text {
 		freqs[ch]++
 	}
 	raiz := huffman.ConstruirArbol(freqs)
 
-	fmt.Println("Codigos Huffman:")
-	huffman.PrintCodes(raiz, []byte{})
-
-	fmt.Println(freqs)
-	fmt.Printf("Tamaño: %d\n", len(text))
-
 	compacted := huffman.Compacted(text, raiz)
-
-	//fmt.Println("Compactado: " + binary)
-
-	fmt.Println("Codigo Huffman: ", compacted)
 
 	err = huffman.SaveCompacted(compacted, raiz)
 	if err != nil {
-		fmt.Println("Error al guardar el archivo: ", err)
-	} else {
-		fmt.Println("Datos comprimidos exitosamente!")
+		http.Error(w, "No se pudo comprimir el archivo1", http.StatusInternalServerError)
 	}
 
 	unziped, raizRecuperada, error := huffman.GetFromCompacted()
 
-	if error == nil {
-		fmt.Println("Recuperados del archivo: ", unziped)
+	if error != nil {
+		http.Error(w, "No se pudo comprimir el archivo2", http.StatusInternalServerError)
+		fmt.Println(error)
 	}
-
-	fmt.Println("Resultado: ", huffman.DecodeData(raizRecuperada, unziped))
 
 	//Este es el comprimido que se mostrara en la pagina
 	compact := huffman.BinaryToBytes(compacted)

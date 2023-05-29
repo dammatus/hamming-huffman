@@ -2,7 +2,9 @@ package huffman
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
+	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -13,11 +15,12 @@ func Compacted(texto string, arbol *arbol) string {
 	obtenerCodigos(arbol, "", codigos) // Generar los códigos Huffman a partir del árbol
 
 	var compactado string
-
+	var buffer bytes.Buffer
 	for _, ch := range texto {
-		compactado += codigos[ch]
+		buffer.WriteString(codigos[ch])
 	}
-
+	compactado = buffer.String()
+	fmt.Println("Termina de comprimir")
 	return compactado
 }
 

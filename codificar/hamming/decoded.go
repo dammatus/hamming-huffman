@@ -1,7 +1,5 @@
 package hamming
 
-import "fmt"
-
 func DecodeHamming(encoded []byte, blockSize int, infoSize int, error bool, parityBits int) []byte {
 	decoded := make([]byte, 0)
 	var decodedBlock = make([]byte, infoSize)
@@ -22,8 +20,6 @@ func DecodeHamming(encoded []byte, blockSize int, infoSize int, error bool, pari
 			}
 		}
 		decoded = append(decoded, decodedBlock...)
-		fmt.Println("Bloque corregido: \n", blockEncoded)
-		fmt.Println("********************-------------*****************")
 
 	}
 	return decoded
