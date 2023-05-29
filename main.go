@@ -422,7 +422,7 @@ func mostrarResultadosComp(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	// Leer el archivo comprimido
-	comprimido, err := ioutil.ReadFile(filepath.Join("comprimir/files", "comprimido.txt"))
+	comprimido, err := ioutil.ReadFile(filepath.Join("comprimir/resultados", "comprimido.huf"))
 	if err != nil {
 		http.Error(w, "No se pudo leer el archivo codificado", http.StatusInternalServerError)
 		return
