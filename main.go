@@ -356,7 +356,7 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 		freqs[ch]++
 	}
 	raiz := huffman.ConstruirArbol(freqs)
-
+	fmt.Println(text)
 	compacted := huffman.Compacted(text, raiz)
 
 	err = huffman.SaveCompacted(compacted, raiz)
@@ -381,7 +381,7 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 
 	//Este es el descomprimido que se mostrara en la pagina
 	unzip := huffman.DecodeData(raiz, unziped) //Aca raiz deberia ser raizRecuperada para que sea fiel... pero raizRecuperada no esta funcionando correctamente... ya lo wa arreglar
-
+	//fmt.Println(unzip)
 	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "descomprimido.txt"), []byte(unzip), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
 		return

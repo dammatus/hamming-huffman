@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
 )
 
+/*
+* Crea un string codificado en huffman segun los datos del arbol de frecuencias
+* y el texto original, en otras palabras codifica a huffman el texto original.
+ */
 func Compacted(texto string, arbol *arbol) string {
 	codigos := make(map[rune]string)
 	obtenerCodigos(arbol, "", codigos) // Generar los códigos Huffman a partir del árbol
@@ -20,10 +23,17 @@ func Compacted(texto string, arbol *arbol) string {
 		buffer.WriteString(codigos[ch])
 	}
 	compactado = buffer.String()
-	fmt.Println("Termina de comprimir")
 	return compactado
 }
 
+/* ----- NOTA PARA MI -------
+*  Creo que es este el que cambie
+*  para que siempre devuelva
+*  el mismo arbol para los
+*  mismos datos, copiar del
+*  codigo paralelo
+* --------------------------
+ */
 func obtenerCodigos(nodo *arbol, prefijo string, codigos map[rune]string) {
 	if nodo == nil {
 		return
@@ -103,8 +113,9 @@ func guardarArbol(raiz *arbol, writer *bufio.Writer) error {
 		return nil
 	}
 
-	writer.WriteByte(1)            //Escribe un byte 1 para indicar nodo valido
-	writer.WriteByte(byte(raiz.c)) //escribe el caracter del nodo
+	writer.WriteByte(1) //Escribe un byte 1 para indicar nodo valido
+	writer.WriteByte(byte(raiz.freq))
+	writer.WriteRune(raiz.c) //escribe el caracter del nodo
 
 	err := guardarArbol(raiz.izq, writer) //Recursion para guardar subarbol izq
 	if err != nil {

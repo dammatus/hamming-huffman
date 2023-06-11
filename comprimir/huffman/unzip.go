@@ -76,7 +76,12 @@ func cargarArbol(reader *bufio.Reader) (*arbol, error) {
 	if flag == 0 { //nodo nulo
 		return nil, nil
 	}
-	caracter, err := reader.ReadByte()
+	freq, err := reader.ReadByte()
+	if err != nil {
+		return nil, err
+	}
+
+	caracter, _, err := reader.ReadRune()
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +96,7 @@ func cargarArbol(reader *bufio.Reader) (*arbol, error) {
 		return nil, err
 	}
 
-	return &arbol{0, rune(caracter), hijoIzq, hijoDer}, nil
+	return &arbol{int(freq), caracter, hijoIzq, hijoDer}, nil
 }
 
 func DecodeData(raiz *arbol, data string) string {
