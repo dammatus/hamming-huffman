@@ -67,9 +67,10 @@ func SaveCompacted(compacted string, raiz *arbol) error {
 	originalLength := len(compacted)
 
 	//Calcula la cantidad de ceros adicionales necesarios para que la longitud sea multiplo de 8
-	extraZeros := 8 - (originalLength % 8)
-
-	compacted += strings.Repeat("0", extraZeros)
+	if (originalLength % 8) != 0 {
+		extraZeros := 8 - (originalLength % 8)
+		compacted += strings.Repeat("0", extraZeros)
+	}
 
 	file, err := os.Create("./comprimir/resultados/comprimido.huf")
 	if err != nil {
