@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8">
+    <title>Compactación-Huffman</title>
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style/style.css">
+</head>
+
+<body>
+    <div class="container-fluid bg-light py-5 ">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8 col-sm-10 col-11">
+                <div class="card">
+                    <div class="card-header bg-secondary text-light fw-bold">Hamming-Huffman</div>
+                    <div class="card-body">
+                        <form action="/" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">Subir archivo ".txt" :</label>
+                                <div class="input-group">
+                                    <input type="file" id="file" name="file" accept=".txt" class="form-control">
+                                    <label for="file" class="input-group-text"><i
+                                            class="bi bi-folder2-open"></i></label>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="options" class="form-label">Opciones:</label>
+                                <select id="options" name="options" class="form-select">
+                                    <option value="" disabled selected>Seleccione una opción</option>
+                                    <option value="option1">Codificar</option>
+                                    <option value="option2">Decodificar</option>
+                                    <option value="option3">Comprimir</option>
+                                    <option value="option4">Descomprimir</option>
+                                    <option value="option5">Comprimir y Codificar</option>
+                                    <option value="option6">Descomprimir y Decodificar</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="segunda-seleccion" style="display: none;">
+                                <label for="Error" class="form-label">Error:</label>
+                                <select id="Error" name="Error" class="form-select">
+                                    <option value="noError" disabled selected>Seleccione una opción</option>
+                                    <option value="error1">Un Error</option>
+                                    <option value="error2">Dos Errores</option>
+                                    <option value="noError">Sin Errores</option>
+                                </select>
+                            </div>
+                            <div class="mb-3" id="tercera-seleccion" style="display: none;">
+                                <label for="block" class="form-label">Tipo de Codificacion:</label>
+                                <select id="block" name="block" class="form-select">
+                                    <option value="" disabled selected>Seleccione una opción</option>
+                                    <option value="32">32 bits</option>
+                                    <option value="2048">2048 bits</option>
+                                    <option value="65536">65536 bits</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <input type="submit" value="Compactar Archivo" class="btn btn-primary">
+                            </div>
+                        </form>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="#" onclick="window.open('../index.html', '_self')" class="btn btn-secondary">Volver</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"
+        integrity="sha384-cDW1X8CO90Iz18zb91oHkZMQWfhKzzzd1QGxME+vgNvQK4H3NlnrbD+I4zg+CvF"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById("options").addEventListener("change", function () {
+            var secondSelectContainer = document.getElementById("segunda-seleccion");
+            var selectedOption = this.value;
+            if (selectedOption === "option1" || selectedOption === "option5") {
+                secondSelectContainer.style.display = "block";
+            } else {
+                secondSelectContainer.style.display = "none";
+            }
+        });
+        document.getElementById("options").addEventListener("change", function () {
+            var secondSelectContainer = document.getElementById("tercera-seleccion");
+            var selectedOption = this.value;
+            if (selectedOption === "option1" || selectedOption === "option5") {
+                secondSelectContainer.style.display = "block";
+            } else {
+                secondSelectContainer.style.display = "none";
+            }
+        });
+    </script>
+</body>
+
+</html>
