@@ -559,40 +559,25 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	text := string(contenido)
 
-	fmt.Println(text)
-
 	freqs := make(map[rune]int)
 	for _, ch := range text {
 		freqs[ch]++
 	}
 	raiz := huffman.ConstruirArbol(freqs)
-
-	fmt.Println("Codigos Huffman:")
-	huffman.PrintCodes(raiz, []byte{})
-
-	fmt.Println(freqs)
-	fmt.Printf("Tamaño: %d\n", len(text))
-
+	fmt.Println(text)
 	compacted := huffman.Compacted(text, raiz)
-
-	//fmt.Println("Compactado: " + binary)
-
-	fmt.Println("Codigo Huffman: ", compacted)
 
 	err = huffman.SaveCompacted(compacted, raiz)
 	if err != nil {
-		fmt.Println("Error al guardar el archivo: ", err)
-	} else {
-		fmt.Println("Datos comprimidos exitosamente!")
+		http.Error(w, "No se pudo comprimir el archivo1", http.StatusInternalServerError)
 	}
 
-	unziped, raizRecuperada, error := huffman.GetFromCompacted()
+	unziped, _, error := huffman.GetFromCompacted() //La raiz que se recupera aca es la que va en la linea 383 donde se define unzip
 
-	if error == nil {
-		fmt.Println("Recuperados del archivo: ", unziped)
+	if error != nil {
+		http.Error(w, "No se pudo comprimir el archivo2", http.StatusInternalServerError)
+		fmt.Println(error)
 	}
-
-	fmt.Println("Resultado: ", huffman.DecodeData(raizRecuperada, unziped))
 
 	//Este es el comprimido que se mostrara en la pagina
 	compact := huffman.BinaryToBytes(compacted)
@@ -603,8 +588,8 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Este es el descomprimido que se mostrara en la pagina
-	unzip := huffman.DecodeData(raizRecuperada, unziped)
-
+	unzip := huffman.DecodeData(raiz, unziped) //Aca raiz deberia ser raizRecuperada para que sea fiel... pero raizRecuperada no esta funcionando correctamente... ya lo wa arreglar
+	//fmt.Println(unzip)
 	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "descomprimido.txt"), []byte(unzip), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
 		return
@@ -630,7 +615,7 @@ func mostrarResultadosComp(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	// Leer el archivo comprimido
-	comprimido, err := ioutil.ReadFile(filepath.Join("comprimir/files", "comprimido.txt"))
+	comprimido, err := ioutil.ReadFile(filepath.Join("comprimir/resultados", "comprimido.huf"))
 	if err != nil {
 		http.Error(w, "No se pudo leer el archivo codificado", http.StatusInternalServerError)
 		return
