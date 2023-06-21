@@ -3,6 +3,7 @@ package huffman
 import (
 	"container/heap"
 	"fmt"
+	"sort"
 )
 
 type arbol struct {
@@ -10,6 +11,11 @@ type arbol struct {
 	c    rune   // Símbolo del nodo (solo se usa en hojas)
 	izq  *arbol // Hijo izquierdo
 	der  *arbol // Hijo derecho
+}
+
+type ElementoFrecuencia struct {
+	c    rune
+	frec int
 }
 
 type parvaArboles []*arbol
@@ -48,8 +54,26 @@ y devuelve el árbol Huffman correspondiente.
 */
 func ConstruirArbol(frecuencias map[rune]int) *arbol {
 	var arboles parvaArboles
+	var elementos []ElementoFrecuencia
+
+	// Convertir el mapa a un slice de elementos de frecuencia
 	for c, frec := range frecuencias {
-		arboles = append(arboles, &arbol{frec, c, nil, nil})
+		elementos = append(elementos, ElementoFrecuencia{c, frec})
+	}
+
+	// Ordenar el slice de elementos por frecuencia ascendente
+	sort.Slice(elementos, func(i, j int) bool {
+		//return elementos[i].frec < elementos[j].frec
+		if elementos[i].frec != elementos[j].frec {
+			return elementos[i].frec < elementos[j].frec
+		} else {
+			return elementos[i].c < elementos[j].c
+		}
+	})
+
+	// Construir los árboles a partir del slice ordenado
+	for _, elem := range elementos {
+		arboles = append(arboles, &arbol{elem.frec, elem.c, nil, nil})
 	}
 	heap.Init(&arboles)
 	for arboles.Len() > 1 {

@@ -362,7 +362,6 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "No se pudo comprimir el archivo1", http.StatusInternalServerError)
 	}
-	/** Borar lo siguiente al terminar la pueba**/
 
 	unziped, _, error := huffman.GetFromCompacted() //La raiz que se recupera aca es la que va en la linea 383 donde se define unzip
 
@@ -391,19 +390,6 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No se pudo guardar el archivo descomprimido.dhu", http.StatusInternalServerError)
 		return
 	}
-	/** Borar lo siguiente al terminar la pueba**/
-	huffman.SaveCompactedData(compacted)
-	prueba, _ := huffman.GetFromCompactedDATA()
-	pruebaDecoded := huffman.DecodeData(raiz, prueba)
-	fmt.Println("Longitud del texto original", len(text))
-	fmt.Println("Longitud del texto comprimido antes de guardar", len(compacted))
-	fmt.Println("Longitud del texto comprimido recuperado del archivo", len(prueba))
-	fmt.Println("Longitud del Resultado", len(pruebaDecoded))
-	fmt.Println("Comparacion de comprimido previo y restaurado:\n *************")
-	fmt.Println("Original: Inicio : ", compacted[:5], " Final: ", compacted[len(compacted)-100:])
-	fmt.Println("Restaurado: Inicio : ", prueba[:5], " Final: ", prueba[len(prueba)-100:])
-	fmt.Println(pruebaDecoded)
-	//Borrar lo anterior al terminar la prueba
 
 	mostrarResultadosComp(w, r)
 }
