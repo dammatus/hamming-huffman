@@ -182,7 +182,7 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 
 			mostrarAmbosResultados(w, r)
 		}
-	case "option2":
+	case "option2": // Por alguna razon no toma el valor del form
 		{
 			// Ver extensión
 			extension := filepath.Ext(header.Filename)
@@ -235,6 +235,28 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 
 			mostrarAmbosResultados(w, r)
 		}
+	case "option3":
+		{
+			/*
+				Deberiamos poder guardar el comprimido en la nueva carpeta ambos/resultados
+			*/
+			// Leer el contenido del archivo
+			contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			comprimido := ambos.Comprimir(w, contenido)
+
+			// se mostrara en el HTML
+			resultado = Resultados{
+				Contenido: string(contenido),
+				Resultado: comprimido,
+			}
+
+			mostrarAmbosResultados(w, r)
+		}
+	case "option4":
 	default:
 		{
 			fmt.Println("Error de opcion")
