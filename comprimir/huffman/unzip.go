@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"fmt"
 	"io"
 	"os"
@@ -141,4 +142,21 @@ func DecodeData(raiz *arbol, data string) string {
 		}
 	}
 	return resultado.String()
+}
+
+func LoadMap() (map[rune]int, error) {
+	file, err := os.Open("./comprimir/resultados/freq.dat")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	decoder := gob.NewDecoder(file)
+
+	var freq map[rune]int
+	err = decoder.Decode(&freq)
+	if err != nil {
+		return nil, err
+	}
+	return freq, nil
 }

@@ -362,7 +362,16 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, "No se pudo comprimir el archivo1", http.StatusInternalServerError)
 	}
-
+	/* A partir de aca guardamos el mapa de frecuencias en un archivo y despues lo recuperamos para simular la descompresión */
+	err = huffman.SaveMap(freqs)
+	if err != nil {
+		fmt.Println("No se pudo guardar el mapa de frecuencias")
+	}
+	freqRecuperada, err := huffman.LoadMap()
+	if err != nil {
+		fmt.Println("No se pudo cargar el mapa de frecuencias")
+	}
+	raizRecuperada := huffman.ConstruirArbol(freqRecuperada)
 	unziped, _, error := huffman.GetFromCompacted() //La raiz que se recupera aca es la que va en la linea 383 donde se define unzip
 
 	if error != nil {
@@ -379,7 +388,7 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Este es el descomprimido que se mostrara en la pagina
-	unzip := huffman.DecodeData(raiz, unziped) //Aca raiz deberia ser raizRecuperada para que sea fiel... pero raizRecuperada no esta funcionando correctamente... ya lo wa arreglar
+	unzip := huffman.DecodeData(raizRecuperada, unziped) //Aca raiz deberia ser raizRecuperada para que sea fiel... pero raizRecuperada no esta funcionando correctamente... ya lo wa arreglar
 	//fmt.Println(unzip)
 	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "descomprimido.txt"), []byte(unzip), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
