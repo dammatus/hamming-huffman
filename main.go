@@ -102,14 +102,14 @@ Funciones para la codificacion y compresion de un archivo
 */
 func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 	// Extrae el archivo subido
-	file, _, err := r.FormFile("archivo")
+	file, header, err := r.FormFile("archivo")
 	if err != nil {
 		http.Error(w, "Error al procesar el archivo subido: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	// Crea la carpeta "codificar/files" si no existe
+	// Crea la carpeta "ambos/files" si no existe
 	err = os.MkdirAll("ambos/files", os.ModePerm)
 	if err != nil {
 		http.Error(w, "No se pudo crear la carpeta en el servidor", http.StatusInternalServerError)
@@ -141,52 +141,104 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 	/*
 		Opciones
 	*/
-
+	fmt.Println(opcion)
 	switch opcion {
 	case "codificar":
-		// Extrae el tipo de codificación
-		blockSizeStr := r.FormValue("block")
-		blockSize, err := strconv.Atoi(blockSizeStr)
-		if err != nil {
-			http.Error(w, "Error al convertir el tamaño de bloque: "+err.Error(), http.StatusBadRequest)
-			return
-		}
+		{
+			// Extrae el tipo de codificación
+			blockSizeStr := r.FormValue("block")
+			blockSize, err := strconv.Atoi(blockSizeStr)
+			if err != nil {
+				http.Error(w, "Error al convertir el tamaño de bloque: "+err.Error(), http.StatusBadRequest)
+				return
+			}
 
-		// Extrae el error
-		errorStr := r.FormValue("Error")
-		hasError := false
-		if errorStr == "Si" {
-			hasError = true
-		}
-		// Leer el contenido del archivo
-		contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
-		if err != nil {
-			http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
-			return
-		}
-		// fmt.Println(hasError, blockSize, contenido)
-		// Codifica el archivo
-		ambos.Codificar(w, blockSize, contenido, hasError)
-		// Leer el contenido del archivo
-		codificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "codificado.txt"))
-		if err != nil {
-			http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
-			return
-		}
+			// Extrae el error
+			errorStr := r.FormValue("Error")
+			hasError := false
+			if errorStr == "error1" || errorStr == "error2" {
+				hasError = true
+			}
+			// Leer el contenido del archivo
+			contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			// Codifica el archivo
+			ambos.Codificar(w, blockSize, contenido, hasError)
+			// Leer el contenido del archivo
+			codificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "codificado.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
 
-		// se mostrara en el HTML
-		resultado = Resultados{
-			Contenido: string(contenido),
-			Resultado: string(codificado),
+			// se mostrara en el HTML
+			resultado = Resultados{
+				Contenido: string(contenido),
+				Resultado: string(codificado),
+			}
+
+			mostrarAmbosResultados(w, r)
 		}
-
-		mostrarAmbosResultados(w, r)
-
 	case "decodificar":
-		// Ver extensión
+		{
+			// Ver extensión
+			extension := filepath.Ext(header.Filename)
+			hasError := false
+			var parityBits, infoBits int
+			switch extension {
+			case ".HA1":
+				parityBits = bitsParity32
+				infoBits = bitsInfo32
+			case ".HE1":
+				hasError = true
+				parityBits = bitsParity32
+				infoBits = bitsInfo32
+			case ".HA2":
+				parityBits = bitsParity2048
+				infoBits = bitsInfo2048
+			case ".HE2":
+				hasError = true
+				parityBits = bitsParity2048
+				infoBits = bitsInfo2048
+			case ".HA3":
+				parityBits = bitsParity65536
+				infoBits = bitsInfo65536
+			case ".HE3":
+				hasError = true
+				parityBits = bitsParity65536
+				infoBits = bitsInfo65536
+			}
+			// Leer el contenido del archivo
+			contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			// DEcodifica
+			ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
+			// Leer el contenido del archivo
+			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "decodificado.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
 
+			// se mostrara en el HTML
+			resultado = Resultados{
+				Contenido: string(contenido),
+				Resultado: string(decodificado),
+			}
+
+			mostrarAmbosResultados(w, r)
+		}
 	default:
-		fmt.Println("Error de opcion")
+		{
+			fmt.Println("Error de opcion")
+		}
+
 	}
 
 }

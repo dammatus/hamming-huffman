@@ -46,9 +46,59 @@ func Codificar(w http.ResponseWriter, blockSize int, contenido []byte, hasError 
 		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 		return
 	}
+	switch blockSize {
+	case 32:
+		if hasError {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE1"), []byte(ascii), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA1"), []byte(ascii), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
+				return
+			}
+		}
+	case 2048:
+		if hasError {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE2"), []byte(ascii), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA2"), []byte(ascii), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
+				return
+			}
+		}
+	case 65536:
+		if hasError {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE3"), []byte(ascii), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
+				return
+			}
+		} else {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA3"), []byte(ascii), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
+				return
+			}
+		}
+	default:
+		http.Error(w, "El tamaño de bloque es inválido", http.StatusBadRequest)
+		return
+	}
 
 }
 
-func Decodificar() {
+func Decodificar(w http.ResponseWriter, encode []byte, blockSize int, infoBits int, hasError bool, parityBits int) {
+	// Decodificar el contenido y escribirlo en un archivo (Sin corregir)
+	decode := hamming.DecodeHamming(encode, blockSize, infoBits, false, parityBits)
+	asciiDeco := hamming.BitsToByte(decode)
+	decoded := string(asciiDeco)
+	//Este es el que se mostrara en la pagina
+	if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded[:len(encode)]), 0644); err != nil {
+		http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
+		return
+	}
 
 }
