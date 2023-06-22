@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	codificarcomprimir "hamming-huffman/codificar-comprimir"
+	"hamming-huffman/ambos"
 	"hamming-huffman/codificar/hamming"
 	"hamming-huffman/comprimir/huffman"
 	"html/template"
@@ -14,10 +14,11 @@ import (
 	"strconv"
 )
 
-type HammHuff struct {
+type Resultados struct {
 	Contenido string
 	Resultado string
 }
+
 type Hamm struct {
 	Contenido    string
 	Codificado   string
@@ -40,7 +41,7 @@ const (
 )
 
 var blockSize int
-var result HammHuff
+var resultado Resultados
 
 func main() {
 	// Configurar los manejadores de las rutas
@@ -51,8 +52,9 @@ func main() {
 	http.HandleFunc("/comprimir/", comprimirHandler)
 	http.HandleFunc("/comprimir/files", archivosCompHandler)
 	http.HandleFunc("/comprimir/resultados", mostrarResultadosComp)
-	http.HandleFunc("/codificar-comprimir/", codificarComprimirHandler)
-	http.HandleFunc("/codificar-comprimir/resultados", mostrarResultadosCodComp)
+	http.HandleFunc("/ambos/", ambosHandler)
+	http.HandleFunc("/ambos/files", archivosAmbosHandler)
+	http.HandleFunc("/ambos/resultados", mostrarAmbosResultados)
 
 	// Iniciar el servidor
 	fmt.Println("Servidor escuchando en http://localhost:8080")
@@ -85,70 +87,37 @@ func comprimirHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func codificarComprimirHandler(w http.ResponseWriter, r *http.Request) {
+func ambosHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		// Si es GET, mostramos el formulario
-		http.ServeFile(w, r, "codificar-comprimir/codificar-comprimir.html")
+		http.ServeFile(w, r, "ambos/ambos.html")
 	} else if r.Method == "POST" {
-		// Agregar funcionalidad despues
-		archivosCodCompHandler(w, r)
+		// Si es POST, enviamos el archivo a la función archivosHandler
+		archivosAmbosHandler(w, r)
 	}
 }
 
 /*
 Funciones para la codificacion y compresion de un archivo
 */
-func archivosCodCompHandler(w http.ResponseWriter, r *http.Request) {
-	// Parsea la petición y extrae el archivo subido
-	err := r.ParseMultipartForm(10 << 20) // 10 MB
-	if err != nil {
-		http.Error(w, "Error al procesar el archivo subido: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
+func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 	// Extrae el archivo subido
-	file, fileHeader, err := r.FormFile("file")
+	file, _, err := r.FormFile("archivo")
 	if err != nil {
 		http.Error(w, "Error al procesar el archivo subido: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	// Obtiene la extensión del archivo subido
-	extension := filepath.Ext(fileHeader.Filename)
-	fmt.Println("Extensión del archivo:", extension)
-
-	// Extrae el tipo de codificación
-	blockSizeStr := r.FormValue("block")
-	blockSize, err = strconv.Atoi(blockSizeStr)
-	if err != nil {
-		http.Error(w, "Error al convertir el tamaño de bloque: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Extrae el error
-	errorStr := r.FormValue("Error")
-	hasError := false
-	var errores int
-	if errorStr == "error1" || errorStr == "error2" {
-		hasError = true
-		if errorStr == "error1" {
-			errores = 1
-		} else {
-			errores = 2
-		}
-	}
-	fmt.Print(errores)
-
-	// Crea la carpeta "codificar-comprimir/files" si no existe
-	err = os.MkdirAll("codificar-comprimir/files", os.ModePerm)
+	// Crea la carpeta "codificar/files" si no existe
+	err = os.MkdirAll("ambos/files", os.ModePerm)
 	if err != nil {
 		http.Error(w, "No se pudo crear la carpeta en el servidor", http.StatusInternalServerError)
 		return
 	}
 
 	// Crea el archivo en el servidor
-	f, err := os.Create(filepath.Join("codificar-comprimir/files", "archivo.txt"))
+	f, err := os.Create(filepath.Join("ambos/files", "archivo.txt"))
 	if err != nil {
 		http.Error(w, "No se pudo crear el archivo en el servidor", http.StatusInternalServerError)
 		return
@@ -161,125 +130,77 @@ func archivosCodCompHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "No se pudo guardar el archivo en el servidor", http.StatusInternalServerError)
 		return
 	}
-	// Leer el contenido del archivo
-	contenido, err := ioutil.ReadFile(filepath.Join("codificar-comprimir/files", "archivo.txt"))
+
+	// Opcion seleccionada
+	opcion := r.FormValue("options")
 	if err != nil {
-		http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+		http.Error(w, "Error al convertir el tamaño de bloque: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Extrae la operacion a realizar
-	options := r.FormValue("options")
-	switch options {
-	// Codificar
-	case "option1":
-		/*
-			Luego controlar que si las extensiones no son del tipo txt habra errores
-		*/
-		// Aplicar Hamming
-		var parityBits, infoBits int
+	/*
+		Opciones
+	*/
 
-		switch blockSize {
-		case 32:
-			parityBits = bitsParity32
-			infoBits = bitsInfo32
-		case 2048:
-			parityBits = bitsParity2048
-			infoBits = bitsInfo2048
-		case 65536:
-			parityBits = bitsParity65536
-			infoBits = bitsInfo65536
-		default:
-			http.Error(w, "El tamaño de bloque es inválido", http.StatusBadRequest)
-			return
-		}
-
-		codificarcomprimir.Codificar(contenido, parityBits, infoBits, blockSize, hasError, w)
-
-		// Leer el archivo original
-		contenido, err := ioutil.ReadFile(filepath.Join("codificar-comprimir/files", "archivo.txt"))
+	switch opcion {
+	case "codificar":
+		// Extrae el tipo de codificación
+		blockSizeStr := r.FormValue("block")
+		blockSize, err := strconv.Atoi(blockSizeStr)
 		if err != nil {
-			http.Error(w, "No se pudo leer el archivo", http.StatusInternalServerError)
+			http.Error(w, "Error al convertir el tamaño de bloque: "+err.Error(), http.StatusBadRequest)
 			return
 		}
-		// Leer el archivo codificado
-		codificado, err := ioutil.ReadFile(filepath.Join("codificar-comprimir/files", "codificado.txt"))
+
+		// Extrae el error
+		errorStr := r.FormValue("Error")
+		hasError := false
+		if errorStr == "Si" {
+			hasError = true
+		}
+		// Leer el contenido del archivo
+		contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
 		if err != nil {
-			http.Error(w, "No se pudo leer el archivo codificado", http.StatusInternalServerError)
+			http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+			return
+		}
+		// fmt.Println(hasError, blockSize, contenido)
+		// Codifica el archivo
+		ambos.Codificar(w, blockSize, contenido, hasError)
+		// Leer el contenido del archivo
+		codificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "codificado.txt"))
+		if err != nil {
+			http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 			return
 		}
 
-		// Crear un mapa de datos para la plantilla HTML
-
-		result := HammHuff{
+		// se mostrara en el HTML
+		resultado = Resultados{
 			Contenido: string(contenido),
 			Resultado: string(codificado),
 		}
-		fmt.Print(result)
-		mostrarResultadosCodComp(w, r)
 
-	// Decodificar
-	case "option2":
-		/*
-			Luego controlar que si las extensiones no son del tipo txt habra errores
-		*/
-		// Aplicar Hamming
-		var parityBits, infoBits int
+		mostrarAmbosResultados(w, r)
 
-		switch extension {
-		case ".DE1":
-			parityBits = bitsParity32
-			infoBits = bitsInfo32
-		case ".DC1":
-			parityBits = bitsParity32
-			infoBits = bitsInfo32
-		case ".DE2":
-			parityBits = bitsParity2048
-			infoBits = bitsInfo2048
-		case ".DC2":
-			parityBits = bitsParity2048
-			infoBits = bitsInfo2048
-		case ".DE3":
-			parityBits = bitsParity65536
-			infoBits = bitsInfo65536
-		case ".DC3":
-			parityBits = bitsParity65536
-			infoBits = bitsInfo65536
-		default:
-			http.Error(w, "El tamaño de bloque es inválido", http.StatusBadRequest)
-			return
-		}
-		if errores == 2 {
-			fmt.Println("Hay dos errores solo se corregira 1")
-		}
-		codificarcomprimir.Decodificar(contenido, hasError, w, len(contenido), extension, parityBits, infoBits)
+	case "decodificar":
+		// Ver extensión
 
-	// Comprimir
-	case "option3":
-	// Descomprimir
-	case "option4":
-	// Compactar y Codificar
-	case "option5":
-	// Descompactar y Decodificar
-	case "option6":
-	// Caso de error - Deja el archivo tal cual está
-	case "":
+	default:
+		fmt.Println("Error de opcion")
 	}
 
 }
 
-func mostrarResultadosCodComp(w http.ResponseWriter, _ *http.Request) {
-	// Establecer el tipo de contenido para que se muestre en utf-8 (igual los acentos no los muestra bien)
-	w.Header().Set("Content-Type", "text/html; charset=utf-8")
-
+func mostrarAmbosResultados(w http.ResponseWriter, _ *http.Request) {
 	// Leer la plantilla HTML
-	tmpl, err := template.ParseFiles("codificar-comprimir/resultados/resultados.html")
+	tmpl, err := template.ParseFiles("ambos/resultados/resultados.html")
 	if err != nil {
 		http.Error(w, "No se pudo leer la plantilla HTML", http.StatusInternalServerError)
 		return
 	}
+
 	// Pasar los datos a la plantilla HTML
-	err = tmpl.Execute(w, result)
+	err = tmpl.Execute(w, resultado)
 	if err != nil {
 		http.Error(w, "No se pudo procesar la plantilla HTML", http.StatusInternalServerError)
 		return
@@ -559,25 +480,40 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	text := string(contenido)
 
+	fmt.Println(text)
+
 	freqs := make(map[rune]int)
 	for _, ch := range text {
 		freqs[ch]++
 	}
 	raiz := huffman.ConstruirArbol(freqs)
-	fmt.Println(text)
+
+	fmt.Println("Codigos Huffman:")
+	huffman.PrintCodes(raiz, []byte{})
+
+	fmt.Println(freqs)
+	fmt.Printf("Tamaño: %d\n", len(text))
+
 	compacted := huffman.Compacted(text, raiz)
+
+	//fmt.Println("Compactado: " + binary)
+
+	fmt.Println("Codigo Huffman: ", compacted)
 
 	err = huffman.SaveCompacted(compacted, raiz)
 	if err != nil {
-		http.Error(w, "No se pudo comprimir el archivo1", http.StatusInternalServerError)
+		fmt.Println("Error al guardar el archivo: ", err)
+	} else {
+		fmt.Println("Datos comprimidos exitosamente!")
 	}
 
-	unziped, _, error := huffman.GetFromCompacted() //La raiz que se recupera aca es la que va en la linea 383 donde se define unzip
+	unziped, raizRecuperada, error := huffman.GetFromCompacted()
 
-	if error != nil {
-		http.Error(w, "No se pudo comprimir el archivo2", http.StatusInternalServerError)
-		fmt.Println(error)
+	if error == nil {
+		fmt.Println("Recuperados del archivo: ", unziped)
 	}
+
+	fmt.Println("Resultado: ", huffman.DecodeData(raizRecuperada, unziped))
 
 	//Este es el comprimido que se mostrara en la pagina
 	compact := huffman.BinaryToBytes(compacted)
@@ -588,8 +524,8 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Este es el descomprimido que se mostrara en la pagina
-	unzip := huffman.DecodeData(raiz, unziped) //Aca raiz deberia ser raizRecuperada para que sea fiel... pero raizRecuperada no esta funcionando correctamente... ya lo wa arreglar
-	//fmt.Println(unzip)
+	unzip := huffman.DecodeData(raizRecuperada, unziped)
+
 	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "descomprimido.txt"), []byte(unzip), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
 		return
@@ -615,7 +551,7 @@ func mostrarResultadosComp(w http.ResponseWriter, _ *http.Request) {
 	}
 
 	// Leer el archivo comprimido
-	comprimido, err := ioutil.ReadFile(filepath.Join("comprimir/resultados", "comprimido.huf"))
+	comprimido, err := ioutil.ReadFile(filepath.Join("comprimir/files", "comprimido.txt"))
 	if err != nil {
 		http.Error(w, "No se pudo leer el archivo codificado", http.StatusInternalServerError)
 		return
