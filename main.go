@@ -182,7 +182,7 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 
 			mostrarAmbosResultados(w, r)
 		}
-	case "decodificar":
+	case "option2":
 		{
 			// Ver extensión
 			extension := filepath.Ext(header.Filename)
@@ -217,8 +217,9 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
+			fmt.Println(contenido)
 			// DEcodifica
-			ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
+			ambos.Decodificar(w, string(contenido), blockSize, infoBits, hasError, parityBits)
 			// Leer el contenido del archivo
 			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "decodificado.txt"))
 			if err != nil {

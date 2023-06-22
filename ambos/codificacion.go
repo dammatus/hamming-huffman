@@ -90,13 +90,14 @@ func Codificar(w http.ResponseWriter, blockSize int, contenido []byte, hasError 
 
 }
 
-func Decodificar(w http.ResponseWriter, encode []byte, blockSize int, infoBits int, hasError bool, parityBits int) {
+func Decodificar(w http.ResponseWriter, encode string, blockSize int, infoBits int, hasError bool, parityBits int) {
 	// Decodificar el contenido y escribirlo en un archivo (Sin corregir)
-	decode := hamming.DecodeHamming(encode, blockSize, infoBits, false, parityBits)
+	bin := hamming.ASCIIToBin(encode)
+	decode := hamming.DecodeHamming(bin, blockSize, infoBits, false, parityBits)
 	asciiDeco := hamming.BitsToByte(decode)
 	decoded := string(asciiDeco)
 	//Este es el que se mostrara en la pagina
-	if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded[:len(encode)]), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded[:len(bin)]), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
 		return
 	}
