@@ -562,13 +562,6 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 		freqs[ch]++
 	}
 	raiz := huffman.ConstruirArbol(freqs)
-
-	fmt.Println("Codigos Huffman:")
-	huffman.PrintCodes(raiz, []byte{})
-
-	fmt.Println(freqs)
-	fmt.Printf("Tamaño: %d\n", len(text))
-
 	compacted := huffman.Compacted(text, raiz)
 
 	//fmt.Println("Compactado: " + binary)
@@ -581,8 +574,17 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Println("Datos comprimidos exitosamente!")
 	}
-
-	unziped, raizRecuperada, error := huffman.GetFromCompacted()
+	/* A partir de aca guardamos el mapa de frecuencias en un archivo y despues lo recuperamos para simular la descompresión */
+	err = huffman.SaveMap(freqs)
+	if err != nil {
+		fmt.Println("No se pudo guardar el mapa de frecuencias")
+	}
+	freqRecuperada, err := huffman.LoadMap()
+	if err != nil {
+		fmt.Println("No se pudo cargar el mapa de frecuencias")
+	}
+	raizRecuperada := huffman.ConstruirArbol(freqRecuperada)
+	unziped, _, error := huffman.GetFromCompacted() //La raiz que se recupera aca es la que va en la linea 383 donde se define unzip
 
 	if error == nil {
 		fmt.Println("Recuperados del archivo: ", unziped)
@@ -599,8 +601,8 @@ func archivosCompHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Este es el descomprimido que se mostrara en la pagina
-	unzip := huffman.DecodeData(raizRecuperada, unziped)
-
+	unzip := huffman.DecodeData(raizRecuperada, unziped) //Aca raiz deberia ser raizRecuperada para que sea fiel... pero raizRecuperada no esta funcionando correctamente... ya lo wa arreglar
+	//fmt.Println(unzip)
 	if err := ioutil.WriteFile(filepath.Join("comprimir/files", "descomprimido.txt"), []byte(unzip), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
 		return

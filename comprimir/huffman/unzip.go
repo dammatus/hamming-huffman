@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
+	"fmt"
 	"io"
 	"os"
 	"strings"
@@ -31,16 +33,39 @@ func GetFromCompacted() (string, *arbol, error) {
 
 	originalLength := int(binary.LittleEndian.Uint32(lengthBytes))
 
-	dataBytes := make([]byte, (originalLength+7)/8)
-	_, err = reader.Read(dataBytes)
+	dataBytes := make([]byte, 1024)
+	var acumulador []byte
+	/* _, err = reader.Read(dataBytes)
 	if err != nil {
-		return "", nil, err
+		return "", err
+	} */
+	for {
+		n, err := reader.Read(dataBytes)
+		if err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				fmt.Println("Error al leer el archivo: ", err)
+				return "", nil, err
+			}
+		}
+		if n == 0 {
+			break
+		}
+		acumulador = append(acumulador, dataBytes...)
+		if len(acumulador) >= originalLength-1024 {
+			break
+		}
 	}
+
+	leeEstoTambien := make([]byte, originalLength-len(acumulador))
+	reader.Read(leeEstoTambien)
+	acumulador = append(acumulador, leeEstoTambien...)
 
 	data := ""
 
 	//Lee los bytes del archivo y los convierte en una cadena binaria
-	for _, byteVal := range dataBytes {
+	for _, byteVal := range acumulador {
 		for j := 7; j >= 0; j-- {
 			if (byteVal >> j & 1) == 1 {
 				builder.WriteByte('1')
@@ -112,9 +137,26 @@ func DecodeData(raiz *arbol, data string) string {
 			nodoActual = nodoActual.der
 		}
 		if nodoActual.izq == nil && nodoActual.der == nil {
-			resultado.WriteByte(byte(nodoActual.c))
+			resultado.WriteRune(nodoActual.c)
 			nodoActual = raiz
 		}
 	}
 	return resultado.String()
+}
+
+func LoadMap() (map[rune]int, error) {
+	file, err := os.Open("./comprimir/resultados/freq.dat")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	decoder := gob.NewDecoder(file)
+
+	var freq map[rune]int
+	err = decoder.Decode(&freq)
+	if err != nil {
+		return nil, err
+	}
+	return freq, nil
 }

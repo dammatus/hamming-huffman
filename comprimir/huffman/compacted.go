@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"os"
 	"strconv"
 	"strings"
@@ -67,9 +68,10 @@ func SaveCompacted(compacted string, raiz *arbol) error {
 	originalLength := len(compacted)
 
 	//Calcula la cantidad de ceros adicionales necesarios para que la longitud sea multiplo de 8
-	extraZeros := 8 - (originalLength % 8)
-
-	compacted += strings.Repeat("0", extraZeros)
+	if (originalLength % 8) != 0 {
+		extraZeros := 8 - (originalLength % 8)
+		compacted += strings.Repeat("0", extraZeros)
+	}
 
 	file, err := os.Create("./comprimir/resultados/comprimido.huf")
 	if err != nil {
@@ -123,6 +125,24 @@ func guardarArbol(raiz *arbol, writer *bufio.Writer) error {
 	}
 
 	err = guardarArbol(raiz.der, writer)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func SaveMap(freq map[rune]int) error {
+	file, err := os.OpenFile("./comprimir/resultados/freq.dat", os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0644)
+
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	encoder := gob.NewEncoder(file)
+	err = encoder.Encode(freq)
+
 	if err != nil {
 		return err
 	}
