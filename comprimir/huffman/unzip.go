@@ -2,12 +2,16 @@ package huffman
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/binary"
+	"io"
 	"os"
+	"strings"
 )
 
 func GetFromCompacted() (string, *arbol, error) {
 	//Abre el archivo para lectura
+	var builder strings.Builder
 	file, err := os.Open("./comprimir/resultados/comprimido.huf")
 
 	if err != nil {
@@ -39,34 +43,45 @@ func GetFromCompacted() (string, *arbol, error) {
 	for _, byteVal := range dataBytes {
 		for j := 7; j >= 0; j-- {
 			if (byteVal >> j & 1) == 1 {
-				data += "1"
+				builder.WriteByte('1')
 			} else {
-				data += "0"
+				builder.WriteByte('0')
 			}
 		}
 	}
-
+	data = builder.String()
 	data = data[:originalLength]
-
 	raiz, err := cargarArbol(reader)
 
 	if err != nil {
-		return "", nil, err
+		if err == io.EOF {
+			err = nil
+		} else {
+			return "", nil, err
+		}
 	}
-
 	return data, raiz, nil
 }
 
 func cargarArbol(reader *bufio.Reader) (*arbol, error) {
 	flag, err := reader.ReadByte()
 	if err != nil {
-		return nil, err
+		if err == io.EOF {
+			err = nil
+		} else {
+			return nil, err
+		}
 	}
 
 	if flag == 0 { //nodo nulo
 		return nil, nil
 	}
-	caracter, err := reader.ReadByte()
+	freq, err := reader.ReadByte()
+	if err != nil {
+		return nil, err
+	}
+
+	caracter, _, err := reader.ReadRune()
 	if err != nil {
 		return nil, err
 	}
@@ -81,11 +96,11 @@ func cargarArbol(reader *bufio.Reader) (*arbol, error) {
 		return nil, err
 	}
 
-	return &arbol{0, rune(caracter), hijoIzq, hijoDer}, nil
+	return &arbol{int(freq), caracter, hijoIzq, hijoDer}, nil
 }
 
 func DecodeData(raiz *arbol, data string) string {
-	resultado := ""
+	var resultado bytes.Buffer
 	nodoActual := raiz
 
 	dataLength := len(data)
@@ -97,9 +112,9 @@ func DecodeData(raiz *arbol, data string) string {
 			nodoActual = nodoActual.der
 		}
 		if nodoActual.izq == nil && nodoActual.der == nil {
-			resultado += string(nodoActual.c)
+			resultado.WriteByte(byte(nodoActual.c))
 			nodoActual = raiz
 		}
 	}
-	return resultado
+	return resultado.String()
 }

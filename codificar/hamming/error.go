@@ -3,7 +3,6 @@ package hamming
 import (
 	"math/rand"
 	"time"
-	"fmt"
 )
 
 func GenerarErrorEnbloque(encoded []byte) []byte {
@@ -12,7 +11,7 @@ func GenerarErrorEnbloque(encoded []byte) []byte {
 	rand.Seed(time.Now().UnixNano())
 
 	// Generar un número aleatorio entre 0 y blockSize -> [0,blockSize)
-	num := rand.Intn(len(encoded)-1)
+	num := rand.Intn(len(encoded) - 1)
 
 	// Si en num hay un 0 -> lo cambia a 1. Si hay un 1 -> Lo cambia a 0
 	encoded[num] = encoded[num] ^ 1
@@ -39,36 +38,27 @@ func checkHamming(bloque []byte, parityBits int) (sindrome int) {
 			comparador[i] = bloque[i]
 		}
 	}
-	
+
 	//vuelvo a aplicar los bits de control pero en un comparador,
 	//para así despues comparar que ambos sean iguales
 	for i := 0; i < parityBits; i++ {
 		comparador = aplicaBitsDeControl(i, comparador, len(bloque))
 	}
 
-	
-
 	bitsComparador := getControlBits(comparador, parityBits)
 
 	j := 0
-	for i := parityBits -1 ; i >= 0; i-- {
+	for i := parityBits - 1; i >= 0; i-- {
 		if bitsBloque[i] != bitsComparador[i] {
 			sindromeBits[j] = 1
-		}else{
+		} else {
 			sindromeBits[j] = 0
 		}
-		
+
 		j++
 	}
-	
 
 	sindrome = binaryToDecimal(sindromeBits)
-	fmt.Println("********************-------------*****************")
-	fmt.Println("Bloque con error: \n",bloque)
-	fmt.Println("Bloque comparador: \n",comparador)
-	fmt.Println("Bits de Control del Bloque: ",bitsBloque)
-	fmt.Println("Bits de Control del Comparador: ",bitsComparador)
-	fmt.Println("Sindrome: ",sindrome)
 
 	return
 }

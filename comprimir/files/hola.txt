@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaab
+=======
+aaabbcccdee Hola mundo este es mi ejemplo aaaaah!!!
+>>>>>>> c224c9cd6c59756b3210f2a58da1bd8884acef2e
