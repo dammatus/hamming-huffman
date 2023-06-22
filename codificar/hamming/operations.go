@@ -2,8 +2,6 @@ package hamming
 
 import (
 	"math"
-	"strconv"
-	"strings"
 )
 
 // Convierte de binario a texto
@@ -81,14 +79,4 @@ func binaryToDecimal(binary []byte) int {
 		decimal += int(binary[i]) * int(math.Pow(2, float64(len(binary)-i-1)))
 	}
 	return decimal
-}
-
-func ASCIIToBin(texto string) []byte {
-	binario := []byte{}
-	for _, char := range texto {
-		bin := strconv.FormatInt(int64(char), 2)
-		padding := strings.Repeat("0", 8-len(bin))
-		binario = append(binario, []byte(padding+bin)...)
-	}
-	return binario
 }

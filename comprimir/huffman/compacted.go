@@ -129,3 +129,48 @@ func guardarArbol(raiz *arbol, writer *bufio.Writer) error {
 
 	return nil
 }
+
+func SaveCompactedAmbos(compacted string, raiz *arbol) error {
+	//Obtiene la longitud original de los datos
+	originalLength := len(compacted)
+
+	//Calcula la cantidad de ceros adicionales necesarios para que la longitud sea multiplo de 8
+	extraZeros := 8 - (originalLength % 8)
+
+	compacted += strings.Repeat("0", extraZeros)
+
+	file, err := os.Create("./ambos/resultados/comprimido.huf")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	// Escribe la longitud original de los datos en el archivo
+	lengthBytes := make([]byte, 4)
+	binary.LittleEndian.PutUint32(lengthBytes, uint32(originalLength))
+	writer.Write(lengthBytes)
+
+	for i := 0; i < len(compacted); i += 8 {
+		byteStr := compacted[i : i+8]
+		byteVal := byte(0)
+		for j := 0; j < 8; j++ {
+			if byteStr[j] == '1' {
+				byteVal |= 1 << (7 - j)
+			}
+		}
+		writer.WriteByte(byteVal)
+	}
+
+	err = guardarArbol(raiz, writer)
+	if err != nil {
+		return err
+	}
+
+	err = writer.Flush()
+	if err != nil {
+		return err
+	}
+	return nil
+}

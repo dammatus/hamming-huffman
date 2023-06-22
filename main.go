@@ -182,7 +182,7 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 
 			mostrarAmbosResultados(w, r)
 		}
-	case "option2": // Por alguna razon no toma el valor del form
+	case "decodificar": //No funca
 		{
 			// Ver extensión
 			extension := filepath.Ext(header.Filename)
@@ -217,9 +217,21 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
-			fmt.Println(contenido)
+			fmt.Println(extension)
+			encode := hamming.ByteToBits(contenido, blockSize)
+
 			// DEcodifica
-			ambos.Decodificar(w, string(contenido), blockSize, infoBits, hasError, parityBits)
+			//ambos.Decodificar(w, encode, blockSize, infoBits, hasError, parityBits)
+			// Decodificar el contenido y escribirlo en un archivo (Sin corregir)
+			decode := hamming.DecodeHamming(encode, blockSize, infoBits, hasError, parityBits)
+			asciiDeco := hamming.BitsToByte(decode)
+			decoded := string(asciiDeco)
+			//Este es el que se mostrara en la pagina
+			if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded), 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
+				return
+			}
+
 			// Leer el contenido del archivo
 			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "decodificado.txt"))
 			if err != nil {
@@ -235,7 +247,7 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 
 			mostrarAmbosResultados(w, r)
 		}
-	case "option3":
+	case "comprimir":
 		{
 			/*
 				Deberiamos poder guardar el comprimido en la nueva carpeta ambos/resultados
@@ -246,17 +258,44 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
-			comprimido := ambos.Comprimir(w, contenido)
-
+			// Comprime
+			ambos.Comprimir(w, contenido)
+			// Leer el contenido del archivo
+			zip, err := ioutil.ReadFile(filepath.Join("ambos/resultados", "comprimido.huf"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
 			// se mostrara en el HTML
 			resultado = Resultados{
 				Contenido: string(contenido),
-				Resultado: comprimido,
+				Resultado: string(zip),
 			}
 
 			mostrarAmbosResultados(w, r)
 		}
-	case "option4":
+	case "descomprimir":
+		{
+			// Leer el contenido del archivo
+			contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			ambos.Descomprimir(w, string(contenido))
+			// Leer el contenido del archivo
+			unzip, err := ioutil.ReadFile(filepath.Join("ambos/resultados", "descomprimido.dhu"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			// se mostrara en el HTML
+			resultado = Resultados{
+				Contenido: string(contenido),
+				Resultado: string(unzip),
+			}
+			mostrarAmbosResultados(w, r)
+		}
 	default:
 		{
 			fmt.Println("Error de opcion")

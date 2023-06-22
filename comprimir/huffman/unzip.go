@@ -118,3 +118,57 @@ func DecodeData(raiz *arbol, data string) string {
 	}
 	return resultado.String()
 }
+
+func GetFromUnzip() (string, *arbol, error) {
+	//Abre el archivo para lectura
+	var builder strings.Builder
+	file, err := os.Open("./ambos/files/archivo.txt")
+
+	if err != nil {
+		return "", nil, err
+	}
+	defer file.Close()
+
+	//Crea un lector de búfer
+	reader := bufio.NewReader(file)
+
+	//Lee la longitud original de los datos del archivo
+	lengthBytes := make([]byte, 4)
+	_, err = reader.Read(lengthBytes)
+	if err != nil {
+		return "", nil, err
+	}
+
+	originalLength := int(binary.LittleEndian.Uint32(lengthBytes))
+
+	dataBytes := make([]byte, (originalLength+7)/8)
+	_, err = reader.Read(dataBytes)
+	if err != nil {
+		return "", nil, err
+	}
+
+	data := ""
+
+	//Lee los bytes del archivo y los convierte en una cadena binaria
+	for _, byteVal := range dataBytes {
+		for j := 7; j >= 0; j-- {
+			if (byteVal >> j & 1) == 1 {
+				builder.WriteByte('1')
+			} else {
+				builder.WriteByte('0')
+			}
+		}
+	}
+	data = builder.String()
+	data = data[:originalLength]
+	raiz, err := cargarArbol(reader)
+
+	if err != nil {
+		if err == io.EOF {
+			err = nil
+		} else {
+			return "", nil, err
+		}
+	}
+	return data, raiz, nil
+}
