@@ -5,11 +5,33 @@ import (
 )
 
 // Convierte de binario a texto
-func BinToASCII(bin []byte) string {
-	/*
-	   devuelve los mismo que la funcion de abajo, solo que de tipo string
-	*/
-	ascii := ""
+// func BinToASCII(bin []byte) string {
+// 	/*
+// 	   devuelve los mismo que la funcion de abajo, solo que de tipo string
+// 	*/
+// 	ascii := ""
+// 	for i := 0; i < len(bin); i += 8 { // se recorre el slice de 8 bits en 8
+// 		end := i + 8
+// 		if end > len(bin) {
+// 			end = len(bin)
+// 		}
+// 		bits := bin[i:end]
+// 		n := byte(0)                     // inicializo un byte en cero que sera usado para construir el byte ASCII correspondiente
+// 		for j := 0; j < len(bits); j++ { // para cada uno, se desplaza n un bit hacia la izquierda y se verifica si el bit es 1 o 0
+// 			n <<= 1
+// 			if bits[j] == 0x01 { // Si el bit es 1, se utiliza el operador "|" para poner el último bit de "n" en 1.
+// 				n |= 1
+// 			}
+// 		}
+// 		ascii += string(n) // se agrega el byte n al string ascii
+// 	}
+
+//		return ascii
+//	}
+
+// Convierte de binario a texto
+func BinToASCII(bin []byte) []byte {
+	ascii := make([]byte, 0)
 	for i := 0; i < len(bin); i += 8 { // se recorre el slice de 8 bits en 8
 		end := i + 8
 		if end > len(bin) {
@@ -23,7 +45,7 @@ func BinToASCII(bin []byte) string {
 				n |= 1
 			}
 		}
-		ascii += string(n) // se agrega el byte n al string ascii
+		ascii = append(ascii, n) // se agrega el byte n al slice ascii
 	}
 
 	return ascii

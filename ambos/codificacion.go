@@ -1,6 +1,7 @@
 package ambos
 
 import (
+	"fmt"
 	"hamming-huffman/codificar/hamming"
 	"io/ioutil"
 	"net/http"
@@ -40,45 +41,44 @@ func Codificar(w http.ResponseWriter, blockSize int, contenido []byte, hasError 
 
 	// Convertir el resultado a texto y escribirlo en un archivo
 	ascii := hamming.BinToASCII(encode)
-
 	//Este es el que se mostrara en la pagina
-	if err := ioutil.WriteFile(filepath.Join("ambos/files", "codificado.txt"), []byte(ascii), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join("ambos/files", "codificado.txt"), ascii, 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 		return nil
 	}
 	switch blockSize {
 	case 32:
 		if hasError {
-			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE1"), []byte(ascii), 0644); err != nil {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE1"), ascii, 0644); err != nil {
 				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 				return nil
 			}
 		} else {
-			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA1"), []byte(ascii), 0644); err != nil {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA1"), ascii, 0644); err != nil {
 				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 				return nil
 			}
 		}
 	case 2048:
 		if hasError {
-			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE2"), []byte(ascii), 0644); err != nil {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE2"), ascii, 0644); err != nil {
 				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 				return nil
 			}
 		} else {
-			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA2"), []byte(ascii), 0644); err != nil {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA2"), ascii, 0644); err != nil {
 				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 				return nil
 			}
 		}
 	case 65536:
 		if hasError {
-			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE3"), []byte(ascii), 0644); err != nil {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HE3"), ascii, 0644); err != nil {
 				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 				return nil
 			}
 		} else {
-			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA3"), []byte(ascii), 0644); err != nil {
+			if err := ioutil.WriteFile(filepath.Join("ambos/resultados", "codificado.HA3"), ascii, 0644); err != nil {
 				http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 				return nil
 			}
@@ -92,11 +92,16 @@ func Codificar(w http.ResponseWriter, blockSize int, contenido []byte, hasError 
 
 func Decodificar(w http.ResponseWriter, encode []byte, blockSize int, infoBits int, hasError bool, parityBits int) {
 	// Decodificar el contenido y escribirlo en un archivo (Sin corregir)
-	decode := hamming.DecodeHamming(encode, blockSize, infoBits, false, parityBits)
+	bin := hamming.ByteToBits(encode, blockSize)
+	fmt.Println("Se convirtio lo codificado a bits")
+	fmt.Println(bin)
+	decode := hamming.DecodeHamming(bin, blockSize, infoBits, false, parityBits)
+	fmt.Println("Se decodifico")
 	asciiDeco := hamming.BitsToByte(decode)
-	decoded := string(asciiDeco)
+	fmt.Println("Se convirtio a texto lo codificado")
+	//decoded := string(asciiDeco)
 	//Este es el que se mostrara en la pagina
-	if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), asciiDeco, 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
 		return
 	}

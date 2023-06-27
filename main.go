@@ -217,21 +217,10 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
-			fmt.Println(extension)
-			encode := hamming.ByteToBits(contenido, blockSize)
 
 			// DEcodifica
-			//ambos.Decodificar(w, encode, blockSize, infoBits, hasError, parityBits)
-			// Decodificar el contenido y escribirlo en un archivo (Sin corregir)
-			decode := hamming.DecodeHamming(encode, blockSize, infoBits, hasError, parityBits)
-			asciiDeco := hamming.BitsToByte(decode)
-			decoded := string(asciiDeco)
-			//Este es el que se mostrara en la pagina
-			if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded), 0644); err != nil {
-				http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
-				return
-			}
-
+			ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
+			fmt.Println("Se decodifico correctamente")
 			// Leer el contenido del archivo
 			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "decodificado.txt"))
 			if err != nil {
@@ -249,9 +238,6 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	case "comprimir":
 		{
-			/*
-				Deberiamos poder guardar el comprimido en la nueva carpeta ambos/resultados
-			*/
 			// Leer el contenido del archivo
 			contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
 			if err != nil {
@@ -294,6 +280,54 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				Contenido: string(contenido),
 				Resultado: string(unzip),
 			}
+			mostrarAmbosResultados(w, r)
+		}
+	case "codificarComprimir":
+		{
+			// Se coprimira y luego se codificara el archivo codificado
+			// Extrae el tipo de codificación
+			blockSizeStr := r.FormValue("block")
+			blockSize, err := strconv.Atoi(blockSizeStr)
+			if err != nil {
+				http.Error(w, "Error al convertir el tamaño de bloque: "+err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			// Extrae el error
+			errorStr := r.FormValue("Error")
+			hasError := false
+			if errorStr == "error1" || errorStr == "error2" {
+				hasError = true
+			}
+			// Leer el contenido del archivo
+			contenido, err := ioutil.ReadFile(filepath.Join("ambos/files", "archivo.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			// Comprime
+			ambos.Comprimir(w, contenido)
+			// Leer el contenido del archivo
+			zip, err := ioutil.ReadFile(filepath.Join("ambos/resultados", "comprimido.huf"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+			// Codifica el archivo
+			ambos.Codificar(w, blockSize, zip, hasError)
+			// Leer el contenido del archivo
+			codificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "codificado.txt"))
+			if err != nil {
+				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				return
+			}
+
+			// se mostrara en el HTML
+			resultado = Resultados{
+				Contenido: string(contenido),
+				Resultado: string(codificado),
+			}
+
 			mostrarAmbosResultados(w, r)
 		}
 	default:
@@ -425,12 +459,12 @@ func archivosCodHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Este es el que se mostrara en la pagina
-	if err := ioutil.WriteFile(filepath.Join("codificar/files", "codificado.txt"), []byte(ascii), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join("codificar/files", "codificado.txt"), ascii, 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 		return
 	}
 	//Este es el que cumple con la consigna, se guarda en la carpeta resultados
-	if err := ioutil.WriteFile(filepath.Join("codificar/resultados", codificadoFileName), []byte(ascii), 0644); err != nil {
+	if err := ioutil.WriteFile(filepath.Join("codificar/resultados", codificadoFileName), ascii, 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo codificado", http.StatusInternalServerError)
 		return
 	}
