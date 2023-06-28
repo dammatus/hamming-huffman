@@ -15,8 +15,12 @@ import (
 )
 
 type Resultados struct {
-	Contenido string
-	Resultado string
+	Contenido     string
+	Resultado     string
+	OriginalPeso  string
+	ResultadoPeso string
+	Promedio      string
+	Error         string
 }
 
 type Hamm struct {
@@ -173,11 +177,38 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
-
+			archivoOriginal := "ambos/files/archivo.txt"
+			// Obtener información del archivo
+			info, err := os.Stat(archivoOriginal)
+			if err != nil {
+				fmt.Println("Error al obtener información del archivo:", err)
+				return
+			}
+			archivoComprimido := "ambos/files/codificado.txt"
+			// Obtener información del archivo
+			cod, err := os.Stat(archivoComprimido)
+			if err != nil {
+				fmt.Println("Error al obtener información del archivo:", err)
+				return
+			}
+			var errores string
+			if hasError {
+				errores = "Codificado con Error"
+			} else {
+				errores = "Codificado sin Error"
+			}
+			// Obtener el tamaño del archivo en bytes
+			tamañoOriginal := info.Size()
+			tamañoCodificado := cod.Size()
+			codificacion := 100 - (tamañoCodificado * 100 / tamañoOriginal)
 			// se mostrara en el HTML
 			resultado = Resultados{
-				Contenido: string(contenido),
-				Resultado: string(codificado),
+				Contenido:     string(contenido),
+				Resultado:     string(codificado),
+				OriginalPeso:  fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoOriginal),
+				ResultadoPeso: fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoCodificado),
+				Promedio:      fmt.Sprintf("El Archivo se compactó un %d %%", codificacion),
+				Error:         errores,
 			}
 
 			mostrarAmbosResultados(w, r)
@@ -252,10 +283,32 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
+			archivoOriginal := "ambos/files/archivo.txt"
+			// Obtener información del archivo
+			info, err := os.Stat(archivoOriginal)
+			if err != nil {
+				fmt.Println("Error al obtener información del archivo:", err)
+				return
+			}
+			archivoComprimido := "ambos/resultados/comprimido.huf"
+			// Obtener información del archivo
+			comp, err := os.Stat(archivoComprimido)
+			if err != nil {
+				fmt.Println("Error al obtener información del archivo:", err)
+				return
+			}
+			// Obtener el tamaño del archivo en bytes
+			tamañoOriginal := info.Size()
+			tamañoComprimido := comp.Size()
+			compresion := 100 - (tamañoComprimido * 100 / tamañoOriginal)
+
 			// se mostrara en el HTML
 			resultado = Resultados{
-				Contenido: string(contenido),
-				Resultado: string(zip),
+				Contenido:     string(contenido),
+				Resultado:     string(zip),
+				OriginalPeso:  fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoOriginal),
+				ResultadoPeso: fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoComprimido),
+				Promedio:      fmt.Sprintf("El Archivo se compactó un %d %%", compresion),
 			}
 
 			mostrarAmbosResultados(w, r)
@@ -275,10 +328,32 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
+			archivoOriginal := "ambos/files/archivo.txt"
+			// Obtener información del archivo
+			info, err := os.Stat(archivoOriginal)
+			if err != nil {
+				fmt.Println("Error al obtener información del archivo:", err)
+				return
+			}
+			archivoDescomprimido := "ambos/resultados/descomprimido.dhu"
+			// Obtener información del archivo
+			desc, err := os.Stat(archivoDescomprimido)
+			if err != nil {
+				fmt.Println("Error al obtener información del archivo:", err)
+				return
+			}
+			// Obtener el tamaño del archivo en bytes
+			tamañoOriginal := info.Size()
+			tamañoDescomprimido := desc.Size()
+
+			descompresion := 100 - (tamañoDescomprimido * 100 / tamañoOriginal)
 			// se mostrara en el HTML
 			resultado = Resultados{
-				Contenido: string(contenido),
-				Resultado: string(unzip),
+				Contenido:     string(contenido),
+				Resultado:     string(unzip),
+				OriginalPeso:  fmt.Sprintf("Tamaño del archivo Comprimido: %d bytes", tamañoOriginal),
+				ResultadoPeso: fmt.Sprintf("Tamaño del archivo Descomprimido: %d bytes", tamañoDescomprimido),
+				Promedio:      fmt.Sprintf("El Archivo creció un %d %%", descompresion),
 			}
 			mostrarAmbosResultados(w, r)
 		}
