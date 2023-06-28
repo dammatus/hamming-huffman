@@ -14,12 +14,36 @@
         <div class="row">
             <div class="col-md-12">
                 <nav class="navbar navbar-expand-md navbar-light bg-light">
-                    <a class="navbar-brand" href="/codificar-comprimir/codificar-comprimir.html">
+                    <a class="navbar-brand" href="/ambos/ambos.html">
                         Volver
+                    </a>
+                    <div class="col-md-12 d-flex justify-content-center">
+                        <a class="navbar-brand font-weight-bold">
+                            Estadisticas
+                        </a>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="col-md-12 d-flex justify-content-center">
+                <nav class="navbar navbar-expand-md navbar-light bg-light flex-column align-items-center">
+                    <a class="navbar-brand mb-2">
+                        {{.OriginalPeso}}
+                    </a>
+                    <a class="navbar-brand mb-2">
+                        {{.ResultadoPeso}}
+                    </a>
+                    <a class="navbar-brand mb-2">
+                        {{.Promedio}}
+                    </a>
+                    <a class="navbar-brand mb-2">
+                        {{.Error}}
                     </a>
                 </nav>
             </div>
+
         </div>
+
         <div class="row p-5">
             <div class="col-md-6">
                 <div class="card">
@@ -42,6 +66,7 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
 </body>
 
 </html>
