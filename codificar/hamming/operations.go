@@ -26,8 +26,8 @@ import (
 // 		ascii += string(n) // se agrega el byte n al string ascii
 // 	}
 
-//		return ascii
-//	}
+// 	return ascii
+// }
 
 // Convierte de binario a texto
 func BinToASCII(bin []byte) []byte {

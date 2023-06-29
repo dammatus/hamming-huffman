@@ -5,13 +5,17 @@ import (
 	"time"
 )
 
-func GenerarErrorEnbloque(encoded []byte) []byte {
+func GenerarErrorEnbloque(encoded []byte, dosErrores bool) []byte {
 
 	// Semilla del generador de numeros aleatorios
 	rand.Seed(time.Now().UnixNano())
 
 	// Generar un número aleatorio entre 0 y blockSize -> [0,blockSize)
 	num := rand.Intn(len(encoded) - 1)
+	if dosErrores {
+		// Generar un número aleatorio entre 0 y blockSize -> [0,blockSize)
+		num = rand.Intn(len(encoded) - 1)
+	}
 
 	// Si en num hay un 0 -> lo cambia a 1. Si hay un 1 -> Lo cambia a 0
 	encoded[num] = encoded[num] ^ 1

@@ -4,15 +4,39 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Huffman</title>
+    <title>Hamming-Huffman</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 
+    <style>
+        body {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .navbar {
+            background-color: #222;
+        }
+
+        .lead {
+            color: #ddd;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container-fluid bg-light">
+    <div class="container-fluid">
 
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <nav class="navbar navbar-expand-md navbar-dark">
             <a class="navbar-brand" href="#">Teoria de la Información y Comunicación</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -22,11 +46,11 @@
 
         <div class="row pt-5">
             <div class="col-md-6 offset-md-3 text-center">
-                <h1>Codificación y Compactación de archivos</h1>
-                <p class="lead">Sistema para gestionar
+                <h1>Protección y Compactación de archivos</h1>
+                <p class="lead">Matus Damián - Vilurón Nicolas
                 <ul>
-                    <li>Codificación y Decodificación de archivos utilizando codificacion de Hamming</li>
-                    <li>Compactación y Descompactación de archivos utilizando codificacion de Huffman</li>
+                    <li>Protección y Desprotección de archivos utilizando el método de Hamming</li>
+                    <li>Compactación y Descompactación de archivos utilizando codificación de Huffman</li>
                 </ul>
                 </p>
             </div>
@@ -34,17 +58,16 @@
 
         <div class="row pt-5">
             <div class="col-md-4 offset-md-2 text-center">
-                <a href="/codificar/hamming.html" class="btn btn-primary btn-lg">Codificar Archivo</a>
+                <a href="/codificar/hamming.html" class="btn btn-primary btn-lg">Hamming</a>
             </div>
             <div class="col-md-4 text-center">
-                <a href="/comprimir/huffman.html" class="btn btn-primary btn-lg">Comprimir Archivo</a>
+                <a href="/comprimir/huffman.html" class="btn btn-primary btn-lg">Huffman</a>
             </div>
         </div>
 
         <div class="row pt-5">
             <div class="col-md-4 offset-md-4 text-center">
-                <a href="/ambos/ambos.html" class="btn btn-primary btn-lg">Codificar y
-                    Comprimir</a>
+                <a href="/ambos/ambos.html" class="btn btn-primary btn-lg">Comprimir y Proteger</a>
             </div>
         </div>
     </div>

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Compactación-Huffman</title>
+    <title>Comprimir y Proteger</title>
     <link rel="stylesheet" type="text/css"
         href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="style/style.css">
@@ -77,7 +77,7 @@
         document.getElementById("options").addEventListener("change", function () {
             var secondSelectContainer = document.getElementById("error");
             var selectedOption = this.value;
-            if (selectedOption === "codificar" || selectedOption === "option5") {
+            if (selectedOption === "codificar" || selectedOption === "codificarComprimir") {
                 secondSelectContainer.style.display = "block";
             } else {
                 secondSelectContainer.style.display = "none";
@@ -86,7 +86,7 @@
         document.getElementById("options").addEventListener("change", function () {
             var secondSelectContainer = document.getElementById("bloque");
             var selectedOption = this.value;
-            if (selectedOption === "codificar" || selectedOption === "option5") {
+            if (selectedOption === "codificar" || selectedOption === "codificarComprimir") {
                 secondSelectContainer.style.display = "block";
             } else {
                 secondSelectContainer.style.display = "none";

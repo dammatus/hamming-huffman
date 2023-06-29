@@ -1,10 +1,9 @@
 package hamming
 
-import "fmt"
-
-func DecodeHamming(encoded []byte, blockSize int, infoSize int, error bool, parityBits int) []byte {
+func DecodeHamming(encoded []byte, blockSize int, infoSize int, error bool, parityBits int) ([]byte, int) {
 	decoded := make([]byte, 0)
 	var decodedBlock = make([]byte, infoSize)
+	var count = 0
 	for k := 0; k < len(encoded); k += blockSize {
 		blockEncoded := encoded[k : k+blockSize]
 		var j = 0
@@ -13,12 +12,10 @@ func DecodeHamming(encoded []byte, blockSize int, infoSize int, error bool, pari
 			sindrome := checkHamming(blockEncoded, parityBits)
 			if sindrome != 0 {
 				blockEncoded = correctBlock(blockEncoded, sindrome)
+				count++
 			}
 		}
-		/*
-			Se queda en bucle aca
-		*/
-		for i := 0; j < len(blockEncoded); i++ {
+		for i := 0; i < len(blockEncoded); i++ {
 			if !isPowerOfTwO(i + 1) {
 				decodedBlock[j] = blockEncoded[i]
 				j++
@@ -27,8 +24,7 @@ func DecodeHamming(encoded []byte, blockSize int, infoSize int, error bool, pari
 		decoded = append(decoded, decodedBlock...)
 
 	}
-	fmt.Println("DEcoded:", decoded)
-	return decoded
+	return decoded, count
 }
 
 func isPowerOfTwO(n int) bool {

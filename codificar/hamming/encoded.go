@@ -67,7 +67,7 @@ func encode(info []byte, parityBits int, blockSize int) []byte {
 }
 
 // Realiza todo el proceso de Hamming para todos los bloques encesarios
-func AplicandoHamming(info []byte, blockSize int, parityBits int, infoBits int, error bool) []byte {
+func AplicandoHamming(info []byte, blockSize int, parityBits int, infoBits int, error bool, dosErrores bool) []byte {
 	/*
 		Esta funcion tomara todos los bloques de informacion, y le aplicara hamming
 		para luego concatenarlos en un slice "encoded", que contendra toda la cadena de info
@@ -105,7 +105,7 @@ func AplicandoHamming(info []byte, blockSize int, parityBits int, infoBits int, 
 		cod := make([]byte, infoBits)
 		// Vemos si tienen que generarse con error o no
 		if error {
-			cod = GenerarErrorEnbloque(encode(temp, parityBits, blockSize))
+			cod = GenerarErrorEnbloque(encode(temp, parityBits, blockSize), dosErrores)
 		} else {
 			// Codificar el bloque y agregarlo a la salida
 			cod = encode(temp, parityBits, blockSize)
