@@ -260,9 +260,9 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// DEcodifica
-			count := ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
+			count, Filename := ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
 			// Leer el contenido del archivo
-			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "decodificado.txt"))
+			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/resultados", Filename))
 			if err != nil {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
@@ -336,14 +336,14 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 			// Obtener el tamaño del archivo en bytes
 			tamañoOriginal := info.Size()
 			tamañoComprimido := comp.Size()
-			compresion := (tamañoComprimido * 100 / tamañoOriginal) - 100
+			compresion := 100 - (tamañoComprimido * 100 / tamañoOriginal)
 
 			// se mostrara en el HTML
 			resultado = Resultados{
 				Contenido:     string(contenido),
 				Resultado:     string(zip),
 				OriginalPeso:  fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoOriginal),
-				ResultadoPeso: fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoComprimido),
+				ResultadoPeso: fmt.Sprintf("Tamaño del archivo comprimido: %d bytes", tamañoComprimido),
 				Promedio:      fmt.Sprintf("El Archivo se Compactó un %d %%", compresion),
 			}
 
@@ -466,7 +466,7 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				Resultado:     string(codificado),
 				OriginalPeso:  fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoOriginal),
 				ResultadoPeso: fmt.Sprintf("Tamaño del archivo original: %d bytes", tamañoCodificado),
-				Promedio:      fmt.Sprintf("El Archivo Disminuyó un %d %%", codificacion),
+				Promedio:      fmt.Sprintf("El Archivo cambió un %d %%", codificacion),
 				Error:         errores,
 			}
 			mostrarAmbosResultados(w, r)
@@ -514,18 +514,23 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 			}
 
 			// DEcodifica
-			count := ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
+			count, _ := ambos.Decodificar(w, contenido, blockSize, infoBits, hasError, parityBits)
 			// Leer el contenido del archivo
 			decodificado, err := ioutil.ReadFile(filepath.Join("ambos/files", "decodificado.txt"))
 			if err != nil {
 				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
 				return
 			}
+			//
+			if err := ioutil.WriteFile(filepath.Join("ambos/files", "archivo.txt"), decodificado, 0644); err != nil {
+				http.Error(w, "No se pudo guardar el archivo descomprimido.txt", http.StatusInternalServerError)
+				return
+			}
 			ambos.Descomprimir(w, string(decodificado))
 			// Leer el contenido del archivo
 			unzip, err := ioutil.ReadFile(filepath.Join("ambos/resultados", "descomprimido.dhu"))
 			if err != nil {
-				http.Error(w, "No se pudo leer el archivo subido", http.StatusInternalServerError)
+				http.Error(w, "No se pudo leer el archivo subido desc", http.StatusInternalServerError)
 				return
 			}
 			archivoOriginal := "ambos/files/archivo.txt"
@@ -553,7 +558,7 @@ func archivosAmbosHandler(w http.ResponseWriter, r *http.Request) {
 				Resultado:     string(unzip),
 				OriginalPeso:  fmt.Sprintf("Tamaño del archivo Comprimido: %d bytes", tamañoOriginal),
 				ResultadoPeso: fmt.Sprintf("Tamaño del archivo Descomprimido: %d bytes", tamañoDescomprimido),
-				Promedio:      fmt.Sprintf("El Archivo Creció un %d %%", descompresion),
+				Promedio:      fmt.Sprintf("El Archivo cambió un %d %%", descompresion),
 				Error:         fmt.Sprintf("Hubo %d errores", count),
 			}
 			mostrarAmbosResultados(w, r)

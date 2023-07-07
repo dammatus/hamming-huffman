@@ -14,7 +14,8 @@ func GenerarErrorEnbloque(encoded []byte, dosErrores bool) []byte {
 	num := rand.Intn(len(encoded) - 1)
 	if dosErrores {
 		// Generar un número aleatorio entre 0 y blockSize -> [0,blockSize)
-		num = rand.Intn(len(encoded) - 1)
+		e := rand.Intn(len(encoded) - 1)
+		encoded[e] = encoded[e] ^ 1
 	}
 
 	// Si en num hay un 0 -> lo cambia a 1. Si hay un 1 -> Lo cambia a 0

@@ -2,6 +2,8 @@ package hamming
 
 import (
 	"math"
+	"math/rand"
+	"time"
 )
 
 /*
@@ -105,7 +107,13 @@ func AplicandoHamming(info []byte, blockSize int, parityBits int, infoBits int, 
 		cod := make([]byte, infoBits)
 		// Vemos si tienen que generarse con error o no
 		if error {
-			cod = GenerarErrorEnbloque(encode(temp, parityBits, blockSize), dosErrores)
+			rand.Seed(time.Now().UnixNano())
+			prob := rand.Intn(100)
+			if prob < 10 {
+				cod = GenerarErrorEnbloque(encode(temp, parityBits, blockSize), dosErrores)
+			} else {
+				cod = encode(temp, parityBits, blockSize)
+			}
 		} else {
 			// Codificar el bloque y agregarlo a la salida
 			cod = encode(temp, parityBits, blockSize)

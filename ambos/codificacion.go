@@ -89,7 +89,7 @@ func Codificar(w http.ResponseWriter, blockSize int, contenido []byte, hasError 
 	return encode
 }
 
-func Decodificar(w http.ResponseWriter, encode []byte, blockSize int, infoBits int, hasError bool, parityBits int) int {
+func Decodificar(w http.ResponseWriter, encode []byte, blockSize int, infoBits int, hasError bool, parityBits int) (int, string) {
 	// Decodificar el contenido y escribirlo en un archivo
 	bin := hamming.ByteToBits(encode, blockSize)
 	decode, count := hamming.DecodeHamming(bin, blockSize, infoBits, hasError, parityBits)
@@ -98,7 +98,39 @@ func Decodificar(w http.ResponseWriter, encode []byte, blockSize int, infoBits i
 	//Este es el que se mostrara en la pagina
 	if err := ioutil.WriteFile(filepath.Join("ambos/files", "decodificado.txt"), []byte(decoded), 0644); err != nil {
 		http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
-		return 0
+		return 0, ""
 	}
-	return count
+
+	if hasError {
+		corregidoFileName := ""
+		switch blockSize {
+		case 32:
+			corregidoFileName = "decodificado.DC1"
+		case 2048:
+			corregidoFileName = "decodificado.DC2"
+		case 65536:
+			corregidoFileName = "decodificado.DC3"
+		}
+		if err := ioutil.WriteFile(filepath.Join("ambos/resultados", corregidoFileName), []byte(decoded), 0644); err != nil {
+			http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
+			return 0, ""
+		}
+		return count, corregidoFileName
+	} else {
+		decodificadoFileName := ""
+		switch blockSize {
+		case 32:
+			decodificadoFileName = "decodificado.DE1"
+		case 2048:
+			decodificadoFileName = "decodificado.DE2"
+		case 65536:
+			decodificadoFileName = "decodificado.DE3"
+		}
+		if err := ioutil.WriteFile(filepath.Join("ambos/resultados", decodificadoFileName), []byte(decoded), 0644); err != nil {
+			http.Error(w, "No se pudo guardar el archivo decodificado", http.StatusInternalServerError)
+			return 0, ""
+		}
+		return count, decodificadoFileName
+
+	}
 }

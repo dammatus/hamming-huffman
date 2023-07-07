@@ -112,7 +112,7 @@ func DecodeData(raiz *arbol, data string) string {
 			nodoActual = nodoActual.der
 		}
 		if nodoActual.izq == nil && nodoActual.der == nil {
-			resultado.WriteByte(byte(nodoActual.c))
+			resultado.WriteRune(nodoActual.c)
 			nodoActual = raiz
 		}
 	}
